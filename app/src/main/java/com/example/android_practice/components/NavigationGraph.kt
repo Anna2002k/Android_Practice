@@ -11,16 +11,23 @@ import androidx.navigation.compose.composable
 import com.example.android_practice.content.DetailScreen
 import com.example.android_practice.content.MainScreen
 import com.example.android_practice.content.Screen1
-import com.example.android_practice.ui.theme.BottomNavigationItems
+import com.example.android_practice.entity.MovieEntity
 
 @Composable
 fun NavigationGraph(navController: NavHostController, modifier: Modifier = Modifier) {
-    NavHost(navController, startDestination = "main") {
-        composable("main") { MainScreen(navController) }
+
+    NavHost(navController, startDestination = "main", modifier = modifier) {
+        composable("main") {
+            MainScreen( navController = navController)
+        }
         composable("details/{movieId}") { backStackEntry ->
-            val movieId = backStackEntry.arguments?.getString("movieId")?.toIntOrNull()
-            if (movieId != null) {
-                DetailScreen(movieId, navController)
+            //val movieId = backStackEntry.arguments?.getString("movieId")?.toIntOrNull()
+            val movie = navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.get<MovieEntity>("movie")
+
+            if (movie != null) {
+                DetailScreen(movie = movie, navController = navController)
             } else {
                 Text(text = "Ошибка загрузки данных", modifier = Modifier.padding(16.dp))
             }
