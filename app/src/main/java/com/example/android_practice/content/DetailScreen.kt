@@ -14,23 +14,24 @@ import androidx.navigation.NavController
 import com.example.android_practice.R
 import com.example.android_practice.components.GlideImage
 import com.example.android_practice.entity.MovieEntity
-import com.example.android_practice.ui.theme.Android_PracticeTheme
+import com.example.android_practice.ui.theme.androidPracticeTheme
+import com.example.android_practice.viewmodel.MovieViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailScreen(movie: MovieEntity, navController: NavController) {
-    val movie = navController.previousBackStackEntry
-        ?.savedStateHandle
-        ?.get<MovieEntity>("movie")
+fun DetailScreen(
+    movie: MovieEntity,
+    navController: NavController,
+    viewModel: MovieViewModel
+) {
+    val isFavorite by viewModel.isFavorite(movie.id).collectAsState(initial = false)
 
     if (movie == null) {
         Text(text = "Ошибка загрузки данных", modifier = Modifier.padding(16.dp))
         return
     }
 
-    val isFavorite = remember { mutableStateOf(false) }
-
-    Android_PracticeTheme {
+    androidPracticeTheme {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
@@ -42,13 +43,14 @@ fun DetailScreen(movie: MovieEntity, navController: NavController) {
                         }
                     },
                     actions = {
-                        IconButton(onClick = { isFavorite.value = !isFavorite.value }) {
+                        IconButton(onClick = { viewModel.toggleFavorite(movie) }) {
                             Icon(
                                 painter = painterResource(
-                                    id = if (isFavorite.value) R.drawable.ic_favorite_filled
-                                    else R.drawable.ic_favorite_border),
+                                    id = if (isFavorite) R.drawable.ic_favorite_filled
+                                    else R.drawable.ic_favorite_border
+                                ),
                                 contentDescription = "Избранное",
-                                tint = if (isFavorite.value) Color.Red else Color.Gray
+                                tint = if (isFavorite) Color.Red else Color.Gray
                             )
                         }
                     }

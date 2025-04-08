@@ -1,9 +1,42 @@
 package com.example.android_practice.data.repository
 
+import com.example.android_practice.data.local.AppDatabase
 import com.example.android_practice.data.remote.MovieApi
+import com.example.android_practice.entity.FavoriteMovieEntity
 import com.example.android_practice.entity.MovieEntity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 
-class MovieRepository(private val api: MovieApi) {
+class MovieRepository(
+    private val api: MovieApi,
+    private val db: AppDatabase
+) {
+    private val favoriteDao = db.favoriteMovieDao()
+
+    suspend fun addToFavorites(movie: MovieEntity) {
+        withContext(Dispatchers.IO) {
+            favoriteDao.insert(FavoriteMovieEntity(movie))
+        }
+    }
+
+    suspend fun removeFromFavorites(movie: MovieEntity) {
+        withContext(Dispatchers.IO) {
+            favoriteDao.delete(FavoriteMovieEntity(movie))
+        }
+    }
+
+    fun getFavoriteMovies(): Flow<List<MovieEntity>> {
+        return favoriteDao.getAll().map { favorites ->
+            favorites.map { it.toMovieEntity() }
+        }
+    }
+
+    fun isFavorite(id: Int): Flow<Boolean> {
+        return favoriteDao.isFavorite(id)
+    }
+
     companion object {
         private const val API_KEY = "3K4TQ6S-ZX8MZGH-JX94R32-E2YMFJM"
     }

@@ -1,6 +1,7 @@
 package com.example.android_practice.ui.theme
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -24,6 +25,13 @@ sealed class BottomNavigationItems(
         route = "screen1",
         title = "Профиль",
         icon = Icons.Outlined.Person,
+        iconSize = 20.dp
+    )
+
+    object FavoritesScreen : BottomNavigationItems(
+        route = "favorites",
+        title = "Избранное",
+        icon = Icons.Outlined.Favorite,
         iconSize = 20.dp
     )
 }

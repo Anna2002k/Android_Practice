@@ -10,12 +10,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import com.example.android_practice.ui.theme.Android_PracticeTheme
+import com.example.android_practice.ui.theme.androidPracticeTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Screen1(navController: NavController) {
-    Android_PracticeTheme {
+    androidPracticeTheme {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {

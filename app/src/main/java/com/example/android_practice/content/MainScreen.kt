@@ -1,11 +1,13 @@
 package com.example.android_practice.content
 
 
+import FiltersDataStore
 import android.widget.ImageView
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,29 +24,43 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.example.android_practice.components.GlideImage
 import com.example.android_practice.data.remote.RetrofitInstance
 import com.example.android_practice.data.repository.MovieRepository
-import com.example.android_practice.ui.theme.Android_PracticeTheme
+import com.example.android_practice.ui.theme.androidPracticeTheme
 import com.example.android_practice.viewmodel.MovieState
 import com.example.android_practice.viewmodel.MovieViewModel
 import com.example.android_practice.viewmodel.ViewModelFactory
+import androidx.compose.material.icons.filled.FilterList
+import com.example.android_practice.cache.FilterStateCache
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavController) {
-    val viewModelFactory = remember {
-        ViewModelFactory(MovieRepository(RetrofitInstance.movieApi))
-    }
-
-    val viewModel: MovieViewModel = viewModel(
-        factory = viewModelFactory
-    )
+fun MainScreen(
+    navController: NavController,
+    viewModel: MovieViewModel,
+    filterStateCache: FilterStateCache
+) {
 
     val movieState by viewModel.movieState.collectAsStateWithLifecycle()
 
-    Android_PracticeTheme {
+    androidPracticeTheme {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                TopAppBar(title = { Text(text = "Список фильмов") })
+                TopAppBar(
+                    title = { Text(text = "Список фильмов") },
+                    actions = {
+                        IconButton(onClick = { navController.navigate("filters") }) {
+                            BadgedBox(
+                                badge = {
+                                    if (filterStateCache.hasActiveFilters) {
+                                        Badge()
+                                    }
+                                }
+                            ) {
+                                Icon(Icons.Default.FilterList, contentDescription = "Фильтры")
+                            }
+                        }
+                    }
+                )
             }
         ) { padding ->
             when (movieState) {
@@ -73,7 +89,7 @@ fun MainScreen(navController: NavController) {
                                         ?.savedStateHandle
                                         ?.set("movie", movie)
                                     navController.navigate("details/${movie.id}")
-                            })
+                                })
                         }
                     }
                 }
@@ -89,6 +105,9 @@ fun MainScreen(navController: NavController) {
                             color = MaterialTheme.colorScheme.error
                         )
                     }
+                }
+                else -> {
+
                 }
             }
         }

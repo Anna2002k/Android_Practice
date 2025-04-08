@@ -18,6 +18,7 @@ import com.example.android_practice.ui.theme.BottomNavigationItems
 fun BottomBar(navController: NavHostController, state: Boolean) {
     val screens = listOf(
         BottomNavigationItems.MainScreen,
+        BottomNavigationItems.FavoritesScreen,
         BottomNavigationItems.Screen1
     )
 
