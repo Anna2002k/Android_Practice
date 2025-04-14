@@ -4,6 +4,7 @@ import FilterPreferences
 import FiltersDataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.android_practice.data.local.AppDatabase
 import com.example.android_practice.data.repository.MovieRepository
 import com.example.android_practice.entity.MovieEntity
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +26,8 @@ fun getAllGenres(movies: List<MovieEntity>): List<String> {
 
 class MovieViewModel(
     private val repository: MovieRepository,
-    private val filtersDataStore: FiltersDataStore
+    private val filtersDataStore: FiltersDataStore,
+    private val db: AppDatabase
 ) : ViewModel() {
 
     fun toggleFavorite(movie: MovieEntity) {

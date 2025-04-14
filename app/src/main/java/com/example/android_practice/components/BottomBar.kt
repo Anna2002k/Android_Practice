@@ -19,7 +19,7 @@ fun BottomBar(navController: NavHostController, state: Boolean) {
     val screens = listOf(
         BottomNavigationItems.MainScreen,
         BottomNavigationItems.FavoritesScreen,
-        BottomNavigationItems.Screen1
+        BottomNavigationItems.ProfileScreen
     )
 
     NavigationBar(

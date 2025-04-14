@@ -21,17 +21,17 @@ sealed class BottomNavigationItems(
         iconSize = 20.dp
     )
 
-    object Screen1 : BottomNavigationItems(
-        route = "screen1",
-        title = "Профиль",
-        icon = Icons.Outlined.Person,
-        iconSize = 20.dp
-    )
-
     object FavoritesScreen : BottomNavigationItems(
         route = "favorites",
         title = "Избранное",
         icon = Icons.Outlined.Favorite,
+        iconSize = 20.dp
+    )
+
+    object ProfileScreen : BottomNavigationItems(
+        route = "profile",
+        title = "Профиль",
+        icon = Icons.Outlined.Person,
         iconSize = 20.dp
     )
 }

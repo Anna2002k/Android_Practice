@@ -10,6 +10,8 @@ import com.example.android_practice.cache.FilterStateCache
 import com.example.android_practice.data.local.AppDatabase
 import com.example.android_practice.data.remote.RetrofitInstance
 import com.example.android_practice.data.repository.MovieRepository
+import com.example.android_practice.data.repository.ProfileRepository
+import com.example.android_practice.viewmodel.ViewModelFactory
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -25,5 +27,15 @@ val appModule = module {
             AppDatabase::class.java,
             "app-database"
         ).build()
+    }
+    single { ProfileRepository(androidContext()) }
+    single { MovieRepository(RetrofitInstance.movieApi, get()) }
+    single {
+        ViewModelFactory(
+            repository = get(),
+            filtersDataStore = get(),
+            db = get(),
+            profileRepository = get()
+        )
     }
 }

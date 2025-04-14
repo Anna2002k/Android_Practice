@@ -75,11 +75,10 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp("androidx.room:room-compiler:2.6.1")
-
     implementation ("io.insert-koin:koin-android:3.5.0")
     implementation ("io.insert-koin:koin-androidx-navigation:3.5.0")
     testImplementation ("io.insert-koin:koin-test-junit4:3.5.0")
-
     implementation("io.insert-koin:koin-core:3.5.0")
     implementation("io.insert-koin:koin-androidx-compose:3.5.0")
+    implementation("com.google.accompanist:accompanist-permissions:0.34.0")
 }

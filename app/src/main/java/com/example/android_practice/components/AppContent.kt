@@ -2,6 +2,9 @@ package com.example.android_practice.components
 
 import FiltersDataStore
 import android.content.Context
+import android.content.Intent
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.result.ActivityResult
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -22,8 +25,7 @@ fun AppContent(
     navController: NavHostController,
     filterStateCache: FilterStateCache,
     repository: MovieRepository,
-    database: AppDatabase,
-    modifier: Modifier = Modifier
+    database: AppDatabase
 ) {
     val filtersDataStore: FiltersDataStore = koinInject()
 

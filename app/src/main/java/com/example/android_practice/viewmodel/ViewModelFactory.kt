@@ -5,17 +5,24 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.android_practice.data.local.AppDatabase
 import com.example.android_practice.data.repository.MovieRepository
+import com.example.android_practice.data.repository.ProfileRepository
 
 class ViewModelFactory(
     private val repository: MovieRepository,
     private val filtersDataStore: FiltersDataStore,
-    private val db: AppDatabase
+    private val db: AppDatabase,
+    private val profileRepository: ProfileRepository
 ) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
+  //  @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MovieViewModel::class.java)) {
-            return MovieViewModel(repository, filtersDataStore) as T
+        return when {
+            modelClass.isAssignableFrom(MovieViewModel::class.java) -> {
+                MovieViewModel(repository, filtersDataStore, db) as T
+            }
+            modelClass.isAssignableFrom(ProfileViewModel::class.java) -> {
+                ProfileViewModel(profileRepository) as T
+            }
+            else -> throw IllegalArgumentException("Unknown ViewModel class")
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
