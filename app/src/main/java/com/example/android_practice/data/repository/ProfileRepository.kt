@@ -1,6 +1,10 @@
 package com.example.android_practice.data.repository
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import com.example.android_practice.ClassStartNotificationReceiver
 import com.example.android_practice.data.Profile
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,6 +19,7 @@ class ProfileRepository(private val context: Context) {
             putString("fullName", profile.fullName)
             putString("avatarUri", profile.avatarUri)
             putString("resumeUrl", profile.resumeUrl)
+            putString("favoriteClassTime", profile.favoriteClassTime)
             apply()
         }
         _profileFlow.value = profile
@@ -24,7 +29,20 @@ class ProfileRepository(private val context: Context) {
         return Profile(
             fullName = sharedPrefs.getString("fullName", "") ?: "",
             avatarUri = sharedPrefs.getString("avatarUri", null),
-            resumeUrl = sharedPrefs.getString("resumeUrl", "") ?: ""
+            resumeUrl = sharedPrefs.getString("resumeUrl", "") ?: "",
+            favoriteClassTime = sharedPrefs.getString("favoriteClassTime", "") ?: ""
         )
+    }
+
+    fun clearScheduledNotification(context: Context) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, ClassStartNotificationReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            ClassStartNotificationReceiver.NOTIFICATION_REQUEST_CODE,
+            intent,
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+        )
+        pendingIntent?.cancel()
     }
 }

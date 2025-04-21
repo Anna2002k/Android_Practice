@@ -1,5 +1,6 @@
 package com.example.android_practice.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android_practice.data.Profile
@@ -26,5 +27,9 @@ class ProfileViewModel(private val repository: ProfileRepository) : ViewModel() 
             repository.saveProfile(currentProfile)
             _profileState.value = currentProfile
         }
+    }
+
+    fun clearScheduledNotification(context: Context) {
+        repository.clearScheduledNotification(context)
     }
 }
