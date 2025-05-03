@@ -16,16 +16,23 @@ import com.example.android_practice.components.GlideImage
 import com.example.android_practice.entity.MovieEntity
 import com.example.android_practice.ui.theme.androidPracticeTheme
 import com.example.android_practice.viewmodel.MovieViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(
-    movie: MovieEntity,
+    movieId: Int?,
     navController: NavController,
-    viewModel: MovieViewModel
+    viewModel: MovieViewModel = koinViewModel()
 ) {
-    val isFavorite by viewModel.isFavorite(movie.id).collectAsState(initial = false)
+    LaunchedEffect(movieId) {
+        movieId?.let { viewModel.getMovieById(it) }
+    }
 
+    val movieDetailsState by viewModel.movieDetailsState.collectAsState(initial = MovieViewModel.MovieDetailsState.Loading)
+    val isFavorite by viewModel.isFavorite(movieId ?: -1).collectAsState(initial = false)
+
+    val movie = (movieDetailsState as? MovieViewModel.MovieDetailsState.Success)?.movie
     if (movie == null) {
         Text(text = "Ошибка загрузки данных", modifier = Modifier.padding(16.dp))
         return
@@ -70,77 +77,32 @@ private fun MovieDetailsContent(
     movie: MovieEntity,
     modifier: Modifier = Modifier
 ) {
-    ConstraintLayout(
+    Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        val (poster, title, year, description, rating, genres, countries) = createRefs()
-
-        GlideImage(url = movie.posterUrl, modifier = Modifier.constrainAs(poster) {
-            top.linkTo(parent.top)
-            start.linkTo(parent.start)
-            end.linkTo(parent.end)
-        })
-
-        Text(
-            text = movie.name,
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.constrainAs(title) {
-                top.linkTo(poster.bottom, margin = 16.dp)
-                start.linkTo(parent.start)
-            }
-        )
-
-        Text(
-            text = "Год: ${movie.year}",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.constrainAs(year) {
-                top.linkTo(title.bottom, margin = 8.dp)
-                start.linkTo(parent.start)
-            }
-        )
-
-        Text(
-            text = "Рейтинг: ${movie.rating}",
-            modifier = Modifier.constrainAs(rating) {
-                top.linkTo(year.bottom, margin = 8.dp)
-                start.linkTo(parent.start)
-            }
-        )
-
-        Text(
-            text = "Описание: ${movie.description ?: "Описание отсутствует"}",
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.constrainAs(description) {
-                top.linkTo(rating.bottom, margin = 16.dp)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            }
-        )
-
+        GlideImage(url = movie.posterUrl, modifier = Modifier.fillMaxWidth())
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = movie.name, style = MaterialTheme.typography.headlineLarge)
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = "Год: ${movie.year}", style = MaterialTheme.typography.bodyMedium)
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = "Рейтинг: ${movie.rating}", style = MaterialTheme.typography.bodyMedium)
+        Spacer(modifier = Modifier.height(16.dp))
         movie.genres?.let {
-            Text(
-                text = "Жанры: ${it.joinToString(", ")}",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.constrainAs(genres) {
-                    top.linkTo(description.bottom, margin = 16.dp)
-                    start.linkTo(parent.start)
-                }
-            )
+            Text(text = "Жанры: ${it.joinToString(", ")}", style = MaterialTheme.typography.bodyMedium)
+            Spacer(modifier = Modifier.height(8.dp))
         }
-
         movie.countries?.let {
-            Text(
-                text = "Страны: ${it.joinToString(", ")}",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.constrainAs(countries) {
-                    top.linkTo(genres.bottom, margin = 16.dp)
-                    start.linkTo(parent.start)
-                }
-            )
+            Text(text = "Страны: ${it.joinToString(", ")}", style = MaterialTheme.typography.bodyMedium)
+            Spacer(modifier = Modifier.height(16.dp))
         }
+        Text(
+            text = movie.formattedDescription(),
+            style = MaterialTheme.typography.bodySmall
+        )
     }
 }
 

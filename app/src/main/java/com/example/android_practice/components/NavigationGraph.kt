@@ -1,9 +1,6 @@
 package com.example.android_practice.components
 
 import FiltersDataStore
-import android.content.Intent
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.result.ActivityResult
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,26 +9,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.android_practice.cache.FilterStateCache
 import com.example.android_practice.content.DetailScreen
-import com.example.android_practice.content.EditProfileScreen
+import com.example.profile_feature.ui.EditProfileScreen
 import com.example.android_practice.content.FavoritesScreen
 import com.example.android_practice.content.FilterScreen
 import com.example.android_practice.content.MainScreen
-import com.example.android_practice.content.ProfileScreen
 import com.example.android_practice.data.local.AppDatabase
-import com.example.android_practice.data.remote.RetrofitInstance
 import com.example.android_practice.data.repository.MovieRepository
-import com.example.android_practice.data.repository.ProfileRepository
+import com.example.profile_feature.data.repository.ProfileRepository
 import com.example.android_practice.entity.MovieEntity
+import com.example.android_practice.viewmodel.FavoritesViewModel
+import com.example.android_practice.viewmodel.FilterViewModel
 import com.example.android_practice.viewmodel.MovieViewModel
-import com.example.android_practice.viewmodel.ProfileViewModel
+import com.example.profile_feature.viewmodel.ProfileViewModel
 import com.example.android_practice.viewmodel.ViewModelFactory
-import org.koin.androidx.compose.get
+import com.example.profile_feature.ui.ProfileScreen
+import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
-import org.koin.core.Koin
 
 @Composable
 fun NavigationGraph(
@@ -56,49 +55,42 @@ fun NavigationGraph(
 
     NavHost(navController, startDestination = "main", modifier = modifier) {
         composable("main") {
-            val viewModel: MovieViewModel = viewModel(factory = viewModelFactory)
+            val viewModel: MovieViewModel = koinViewModel()
             MainScreen(
                 navController = navController,
-                viewModel = viewModel,
-                filterStateCache = filterStateCache
+                viewModel = viewModel
             )
         }
         composable("filters") {
-            val viewModel: MovieViewModel = viewModel(factory = viewModelFactory)
+            val viewModel: FilterViewModel = koinViewModel()
             FilterScreen(
                 navController = navController,
                 viewModel = viewModel,
-                filtersDataStore = filtersDataStore,
-                filterStateCache = filterStateCache
+                filtersDataStore = koinInject(),
+                filterStateCache = koinInject()
             )
         }
-        composable("details/{movieId}") { backStackEntry ->
-            val viewModel: MovieViewModel = viewModel(factory = viewModelFactory)
-            val movie = navController.previousBackStackEntry
-                ?.savedStateHandle
-                ?.get<MovieEntity>("movie")
-
-            if (movie != null) {
-                DetailScreen(
-                    movie = movie,
-                    navController = navController,
-                    viewModel = viewModel
-                )
-            } else {
-                Text(text = "Ошибка загрузки данных", modifier = Modifier.padding(16.dp))
-            }
+        composable("details/{movieId}",
+            arguments = listOf(navArgument("movieId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val movieId = backStackEntry.arguments?.getInt("movieId")
+            DetailScreen(
+                movieId = movieId,
+                navController = navController,
+                viewModel = koinViewModel()
+            )
         }
         composable("favorites") {
-            val viewModel: MovieViewModel = viewModel(factory = viewModelFactory)
-            FavoritesScreen(navController, viewModel)
+            val viewModel: FavoritesViewModel = koinViewModel()
+            FavoritesScreen(navController = navController, viewModel = viewModel)
         }
         composable("editProfile") {
-            val viewModel: ProfileViewModel = viewModel(factory = viewModelFactory)
-            EditProfileScreen(navController, viewModel)
+            val viewModel: ProfileViewModel = koinViewModel()
+            EditProfileScreen(navController = navController, viewModel = viewModel)
         }
         composable("profile") {
-            val viewModel: ProfileViewModel = viewModel(factory = viewModelFactory)
-            ProfileScreen(navController, viewModel)
+            val viewModel: ProfileViewModel = koinViewModel()
+            ProfileScreen(navController = navController, viewModel = viewModel)
         }
     }
 }

@@ -1,14 +1,23 @@
 package com.example.android_practice.cache
 
+import FilterPreferences
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+
 class FilterStateCache {
-    var hasActiveFilters: Boolean = false
+
+    var currentState by mutableStateOf(FilterPreferences())
         private set
 
+    val hasActiveFilters: Boolean
+        get() = currentState.query.isNotEmpty() || currentState.genres.isNotEmpty() || currentState.minRating > 0.0
+
     fun updateState(query: String, genres: Set<String>, rating: Double) {
-        hasActiveFilters = query.isNotEmpty() || genres.isNotEmpty() || rating > 0.0
+        currentState = FilterPreferences(query = query, genres = genres, minRating = rating)
     }
 
     fun reset() {
-        hasActiveFilters = false
+        currentState = FilterPreferences()
     }
 }

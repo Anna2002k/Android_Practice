@@ -1,9 +1,8 @@
-package com.example.android_practice.content
+package com.example.profile_feature.ui
 
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,18 +30,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.android_practice.components.GlideImage
-import com.example.android_practice.viewmodel.ProfileViewModel
-import com.example.android_practice.viewmodel.ViewModelFactory
-import org.koin.androidx.compose.get
+import com.example.profile_feature.viewmodel.ProfileViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     navController: NavController,
-    viewModel: ProfileViewModel
+    viewModel: ProfileViewModel = koinViewModel()
 ) {
     val profile by viewModel.profileState.collectAsStateWithLifecycle()
     val context = LocalContext.current

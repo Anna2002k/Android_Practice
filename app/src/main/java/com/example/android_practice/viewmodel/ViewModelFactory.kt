@@ -5,7 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.android_practice.data.local.AppDatabase
 import com.example.android_practice.data.repository.MovieRepository
-import com.example.android_practice.data.repository.ProfileRepository
+import com.example.profile_feature.data.repository.ProfileRepository
+import com.example.profile_feature.viewmodel.ProfileViewModel
 
 class ViewModelFactory(
     private val repository: MovieRepository,

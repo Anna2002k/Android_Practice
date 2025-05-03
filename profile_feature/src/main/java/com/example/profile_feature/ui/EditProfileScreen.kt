@@ -1,12 +1,8 @@
-package com.example.android_practice.content
+package com.example.profile_feature.ui
 
 import android.Manifest
-import android.app.Activity
 import android.app.Activity.RESULT_OK
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.app.TimePickerDialog
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -14,12 +10,8 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.provider.Settings
-import android.util.Log
-import android.widget.TimePicker
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -52,13 +44,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberTimePickerState
-import androidx.compose.material3.Button
-import androidx.compose.material3.TimePicker
-import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,28 +57,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import com.example.android_practice.ClassStartNotificationReceiver
-import com.example.android_practice.components.GlideImage
-import com.example.android_practice.data.Profile
-import com.example.android_practice.scheduleNotification
-import com.example.android_practice.viewmodel.ProfileViewModel
-import com.example.android_practice.viewmodel.ViewModelFactory
+import com.example.profile_feature.data.Profile
+import com.example.profile_feature.viewmodel.ProfileViewModel
+import com.example.profile_feature.viewmodel.scheduleNotification
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.get
-import org.koin.compose.koinInject
-import org.koin.core.Koin
 import java.io.File
 import java.io.FileOutputStream
-import java.time.LocalTime
 import java.util.Calendar
 import java.util.Locale
 
@@ -130,8 +107,6 @@ fun EditProfileScreen(
             calendar.get(Calendar.HOUR_OF_DAY) to calendar.get(Calendar.MINUTE)
         }
     }
-
-    val initialTime = parseTime(profile.favoriteClassTime)
 
     var hasNotificationPermission by remember {
         mutableStateOf(
@@ -246,13 +221,11 @@ fun EditProfileScreen(
                                     )
                                 )
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasNotificationPermission) {
-                                    Log.d("EditProfile", "Запрашиваем разрешение на уведомления перед планированием")
                                     requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                                 } else {
                                     context.scheduleNotification(fullName, favoriteClassTime)
                                     navController.popBackStack()
                                 }
-
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !hasExactAlarmPermission) {
                                     requestExactAlarmPermission()
                                 }

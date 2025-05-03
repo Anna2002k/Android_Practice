@@ -30,16 +30,21 @@ import com.example.android_practice.viewmodel.MovieViewModel
 import com.example.android_practice.viewmodel.ViewModelFactory
 import androidx.compose.material.icons.filled.FilterList
 import com.example.android_practice.cache.FilterStateCache
+import com.example.android_practice.di.MovieUiModel
+import com.example.android_practice.di.toUiModel
+import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     navController: NavController,
-    viewModel: MovieViewModel,
-    filterStateCache: FilterStateCache
+    viewModel: MovieViewModel = koinViewModel()
 ) {
 
     val movieState by viewModel.movieState.collectAsStateWithLifecycle()
+    val hasActiveFilters by viewModel.hasActiveFilters.collectAsStateWithLifecycle()
 
     androidPracticeTheme {
         Scaffold(
@@ -51,7 +56,7 @@ fun MainScreen(
                         IconButton(onClick = { navController.navigate("filters") }) {
                             BadgedBox(
                                 badge = {
-                                    if (filterStateCache.hasActiveFilters) {
+                                    if (hasActiveFilters){
                                         Badge()
                                     }
                                 }
@@ -83,12 +88,10 @@ fun MainScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(movies) { movie ->
-                            MovieItem(movie = movie,
+                            val movieUiModel = movie.toUiModel()
+                            MovieItem(movie = movieUiModel,
                                 onClick = {
-                                    navController.currentBackStackEntry
-                                        ?.savedStateHandle
-                                        ?.set("movie", movie)
-                                    navController.navigate("details/${movie.id}")
+                                    navController.navigate("details/${movieUiModel.id}")
                                 })
                         }
                     }
@@ -115,7 +118,7 @@ fun MainScreen(
 }
 
 @Composable
-fun MovieItem(movie: MovieEntity, onClick: () -> Unit) {
+fun MovieItem(movie: MovieUiModel, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -134,15 +137,13 @@ fun MovieItem(movie: MovieEntity, onClick: () -> Unit) {
                     .weight(1f)
                     .padding(start = 16.dp)
             ) {
-                Text(text = movie.name, style = MaterialTheme.typography.titleLarge)
+                Text(text = movie.title, style = MaterialTheme.typography.titleLarge)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(text = "Год: ${movie.year}", style = MaterialTheme.typography.bodyMedium)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(text = "Рейтинг: ${movie.rating}", style = MaterialTheme.typography.bodyMedium)
                 Spacer(modifier = Modifier.height(8.dp))
-                movie.genres?.let {
-                    Text(text = "Жанры: ${it.joinToString(", ")}", style = MaterialTheme.typography.bodySmall)
-                }
+                Text(text = "Жанры: ${movie.genres}", style = MaterialTheme.typography.bodySmall)
             }
         }
     }

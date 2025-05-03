@@ -30,6 +30,38 @@ class MovieViewModel(
     private val db: AppDatabase
 ) : ViewModel() {
 
+    private val _currentMovieId = MutableStateFlow<Int?>(null)
+    val currentMovieId: StateFlow<Int?> = _currentMovieId.asStateFlow()
+
+    private val _movieDetailsState = MutableStateFlow<MovieDetailsState?>(null)
+    val movieDetailsState: StateFlow<MovieDetailsState?> = _movieDetailsState.asStateFlow()
+
+    private val _hasActiveFilters = MutableStateFlow(false)
+    val hasActiveFilters: StateFlow<Boolean> = _hasActiveFilters.asStateFlow()
+
+    fun setMovieId(id: Int) {
+        _currentMovieId.value = id
+    }
+
+    fun getMovieById(movieId: Int) {
+        _movieDetailsState.value = MovieDetailsState.Loading
+        viewModelScope.launch {
+            try {
+                val movie = repository.getMovieById(movieId)
+                _movieDetailsState.value = MovieDetailsState.Success(movie)
+            } catch (e: Exception) {
+                _movieDetailsState.value = MovieDetailsState.Error("Ошибка загрузки деталей фильма: ${e.localizedMessage ?: "Неизвестная ошибка"}")
+            }
+        }
+    }
+
+
+    sealed class MovieDetailsState {
+        object Loading : MovieDetailsState()
+        data class Success(val movie: MovieEntity) : MovieDetailsState()
+        data class Error(val message: String) : MovieDetailsState()
+    }
+
     fun toggleFavorite(movie: MovieEntity) {
         viewModelScope.launch {
             val isFavorite = repository.isFavorite(movie.id).first()
@@ -59,6 +91,7 @@ class MovieViewModel(
         viewModelScope.launch {
             filtersDataStore.filtersFlow.collect { filters ->
                 currentFilters = filters
+                _hasActiveFilters.value = filters.query.isNotEmpty() || filters.genres.isNotEmpty() || filters.minRating > 0.0
                 loadMovies()
             }
         }

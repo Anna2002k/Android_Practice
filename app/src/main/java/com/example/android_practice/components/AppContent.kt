@@ -17,21 +17,28 @@ import com.example.android_practice.cache.FilterStateCache
 import com.example.android_practice.data.local.AppDatabase
 import com.example.android_practice.data.remote.RetrofitInstance
 import com.example.android_practice.data.repository.MovieRepository
+import com.example.android_practice.ui.theme.BottomNavigationItems
 import org.koin.compose.koinInject
 
 
 @Composable
 fun AppContent(
-    navController: NavHostController,
-    filterStateCache: FilterStateCache,
-    repository: MovieRepository,
-    database: AppDatabase
+    navController: NavHostController
 ) {
+    val filterStateCache: FilterStateCache = koinInject()
+    val repository: MovieRepository = koinInject()
+    val database: AppDatabase = koinInject()
     val filtersDataStore: FiltersDataStore = koinInject()
+
+    val bottomNavItems = listOf(
+        BottomNavigationItems.MainScreen,
+        BottomNavigationItems.FavoritesScreen,
+        BottomNavigationItems.ProfileScreen
+    )
 
     Scaffold(
         bottomBar = {
-            BottomBar(navController = navController, state = true)
+            BottomBar(navController = navController, screens = bottomNavItems)
         }
     ) { paddingValues ->
         NavigationGraph(

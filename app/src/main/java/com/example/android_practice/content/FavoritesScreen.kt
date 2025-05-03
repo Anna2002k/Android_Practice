@@ -13,15 +13,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.android_practice.di.toUiModel
+import com.example.android_practice.viewmodel.FavoritesViewModel
 import com.example.android_practice.viewmodel.MovieViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoritesScreen(
     navController: NavController,
-    viewModel: MovieViewModel
+    viewModel: FavoritesViewModel = koinViewModel()
 ) {
-    val favorites by viewModel.getFavoriteMovies().collectAsState(initial = emptyList())
+    val favorites by viewModel.favoriteMovies.collectAsState()
 
     Scaffold(
         topBar = {
@@ -52,13 +55,11 @@ fun FavoritesScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(favorites) { movie ->
+                    val movieUiModel = movie.toUiModel()
                     MovieItem(
-                        movie = movie,
+                        movie = movieUiModel,
                         onClick = {
-                            navController.currentBackStackEntry
-                                ?.savedStateHandle
-                                ?.set("movie", movie)
-                            navController.navigate("details/${movie.id}")
+                            navController.navigate("details/${movieUiModel.id}")
                         }
                     )
                 }

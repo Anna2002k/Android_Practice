@@ -33,7 +33,7 @@ class FiltersDataStore(private val dataStore: DataStore<Preferences>) {
 }
 
 data class FilterPreferences(
-    val query: String,
-    val genres: Set<String>,
-    val minRating: Double
+    val query: String = "",
+    val genres: Set<String> = emptySet(),
+    val minRating: Double = 0.0
 )

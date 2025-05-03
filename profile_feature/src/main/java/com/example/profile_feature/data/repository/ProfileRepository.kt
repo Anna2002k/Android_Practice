@@ -1,11 +1,11 @@
-package com.example.android_practice.data.repository
+package com.example.profile_feature.data.repository
 
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import com.example.android_practice.ClassStartNotificationReceiver
-import com.example.android_practice.data.Profile
+import com.example.profile_feature.data.Profile
+import com.example.profile_feature.viewmodel.ClassStartNotificationReceiver
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 

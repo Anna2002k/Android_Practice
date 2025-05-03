@@ -1,19 +1,18 @@
-package com.example.android_practice
+package com.example.profile_feature.viewmodel
 
-import android.Manifest
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import java.util.Calendar
-import java.util.Locale
 
 fun Context.scheduleNotification(fullName: String, time: String) {
-    if (!isValidTimeFormat(time)) return
 
+    if (!isValidTimeFormat(time)) {
+        return
+    }
     val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -35,16 +34,21 @@ fun Context.scheduleNotification(fullName: String, time: String) {
         set(Calendar.HOUR_OF_DAY, hour)
         set(Calendar.MINUTE, minute)
         set(Calendar.SECOND, 0)
+        if (timeInMillis <= now.timeInMillis) {
+            add(Calendar.DAY_OF_MONTH, 1)
+        }
     }
 
-    if (notificationTime.timeInMillis <= now.timeInMillis) {
-        notificationTime.add(Calendar.DAY_OF_MONTH, 1)
+    val minDifference = 1 * 60 * 1000
+    if (notificationTime.timeInMillis - now.timeInMillis < minDifference) {
+        notificationTime.add(Calendar.MINUTE, 1)
     }
 
-    val intent = Intent("com.example.android_practice.CLASS_START_ALARM").apply {
+    val intent = Intent(this, ClassStartNotificationReceiver::class.java).apply {
+        action = "com.example.profile_feature.CLASS_START_ALARM"
         putExtra("fullName", fullName)
-        `package` = packageName
     }
+
     val pendingIntent = PendingIntent.getBroadcast(
         this,
         ClassStartNotificationReceiver.NOTIFICATION_REQUEST_CODE,
@@ -64,5 +68,5 @@ fun Context.scheduleNotification(fullName: String, time: String) {
 }
 
 private fun isValidTimeFormat(time: String): Boolean {
-    return time.matches(Regex("^\\d{2}:\\d{2}$"))
+    return time.matches(Regex("^(0?[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$"))
 }

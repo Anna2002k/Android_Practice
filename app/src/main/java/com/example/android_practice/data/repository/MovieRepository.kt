@@ -2,6 +2,7 @@ package com.example.android_practice.data.repository
 
 import com.example.android_practice.data.local.AppDatabase
 import com.example.android_practice.data.remote.MovieApi
+import com.example.android_practice.data.remote.RetrofitInstance.API_KEY
 import com.example.android_practice.entity.FavoriteMovieEntity
 import com.example.android_practice.entity.MovieEntity
 import kotlinx.coroutines.Dispatchers
@@ -37,9 +38,7 @@ class MovieRepository(
         return favoriteDao.isFavorite(id)
     }
 
-    companion object {
-        private const val API_KEY = "3K4TQ6S-ZX8MZGH-JX94R32-E2YMFJM"
-    }
+
 
     suspend fun getMovies(page: Int): List<MovieEntity> {
         return api.getMovies(
@@ -58,5 +57,20 @@ class MovieRepository(
             ratingKp = "1-10",
             ageRating = "!18"
         ).movies.map { it.toMovieEntity() }
+    }
+
+    suspend fun getMovieById(movieId: Int): MovieEntity {
+        return api.getMovieById(
+            apiKey = API_KEY,
+            movieId = movieId,
+            selectFields = listOf(
+                "id", "name", "year", "description", "rating",
+                "poster", "genres", "countries"
+            ),
+            notNullFields = listOf(
+                "id", "name", "year", "description", "rating.kp",
+                "poster.url", "genres.name", "countries.name"
+            )
+        ).toMovieEntity()
     }
 }

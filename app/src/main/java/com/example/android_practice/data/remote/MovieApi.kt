@@ -2,6 +2,7 @@ package com.example.android_practice.data.remote
 
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface MovieApi {
@@ -18,4 +19,17 @@ interface MovieApi {
         @Query("ageRating") ageRating: String
     ): MovieResponse
 
+    @GET("v1.4/movie/{id}")
+    suspend fun getMovieById(
+        @Header("X-API-KEY") apiKey: String,
+        @Path("id") movieId: Int,
+        @Query("selectFields") selectFields: List<String> = listOf(
+            "id", "name", "year", "description", "rating",
+            "poster", "genres", "countries"
+        ),
+        @Query("notNullFields") notNullFields: List<String> = listOf(
+            "id", "name", "year", "description", "rating.kp",
+            "poster.url", "genres.name", "countries.name"
+        )
+    ): MovieResponse.NetworkMovie
 }

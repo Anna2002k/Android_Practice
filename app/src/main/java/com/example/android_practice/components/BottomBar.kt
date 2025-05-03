@@ -15,12 +15,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.android_practice.ui.theme.BottomNavigationItems
 
 @Composable
-fun BottomBar(navController: NavHostController, state: Boolean) {
-    val screens = listOf(
-        BottomNavigationItems.MainScreen,
-        BottomNavigationItems.FavoritesScreen,
-        BottomNavigationItems.ProfileScreen
-    )
+fun BottomBar(navController: NavHostController, screens: List<BottomNavigationItems>) {
 
     NavigationBar(
         containerColor = Color.LightGray,

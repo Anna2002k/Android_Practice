@@ -1,13 +1,12 @@
-package com.example.android_practice.viewmodel
+package com.example.profile_feature.viewmodel
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.android_practice.data.Profile
-import com.example.android_practice.data.repository.ProfileRepository
+import com.example.profile_feature.data.repository.ProfileRepository
+import com.example.profile_feature.data.Profile
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(private val repository: ProfileRepository) : ViewModel() {

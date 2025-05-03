@@ -18,34 +18,24 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.android_practice.cache.FilterStateCache
+import com.example.android_practice.viewmodel.FilterViewModel
 import com.example.android_practice.viewmodel.MovieState
 import com.example.android_practice.viewmodel.MovieViewModel
+import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterScreen(
     navController: NavController,
-    viewModel: MovieViewModel,
-    filtersDataStore: FiltersDataStore,
-    filterStateCache: FilterStateCache
+    viewModel: FilterViewModel = koinViewModel(),
+    filtersDataStore: FiltersDataStore = koinInject(),
+    filterStateCache: FilterStateCache = koinInject()
 ) {
-    val movieState by viewModel.movieState.collectAsState()
-    val filters by filtersDataStore.filtersFlow.collectAsState(initial = FilterPreferences("", emptySet(), 0.0))
-    var searchQuery by remember { mutableStateOf(filters.query) }
-    var selectedGenres by remember { mutableStateOf(filters.genres) }
-    var minRating by remember { mutableStateOf(filters.minRating) }
-
-    val allGenres = remember(movieState) {
-        if (movieState is MovieState.Success) {
-            (movieState as MovieState.Success).genres
-        } else {
-            emptyList()
-        }
-    }
-
-    LaunchedEffect(searchQuery, selectedGenres, minRating) {
-        filterStateCache.updateState(searchQuery, selectedGenres, minRating)
-    }
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    val selectedGenres by viewModel.selectedGenres.collectAsState()
+    val minRating by viewModel.minRating.collectAsState()
+    val allGenres by viewModel.allGenres.collectAsState()
 
     Scaffold(
         topBar = {
@@ -58,12 +48,7 @@ fun FilterScreen(
                 },
                 actions = {
                     TextButton(
-                        onClick = {
-                            filterStateCache.reset()
-                            searchQuery = ""
-                            selectedGenres = emptySet()
-                            minRating = 0.0
-                        }
+                        onClick = { viewModel.resetFilters() }
                     ) {
                         Text("Сбросить")
                     }
@@ -73,7 +58,7 @@ fun FilterScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = {
-                    viewModel.applyFilters(searchQuery, selectedGenres, minRating)
+                    viewModel.applyFilters()
                     navController.popBackStack()
                 },
                 icon = { Icon(Icons.Default.Done, contentDescription = "Применить") },
@@ -89,7 +74,7 @@ fun FilterScreen(
         ) {
             OutlinedTextField(
                 value = searchQuery,
-                onValueChange = { searchQuery = it },
+                onValueChange = { viewModel.onSearchQueryChange(it) },
                 label = { Text("Поиск") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -112,11 +97,7 @@ fun FilterScreen(
                         Checkbox(
                             checked = selectedGenres.contains(genre),
                             onCheckedChange = { isChecked ->
-                                selectedGenres = if (isChecked) {
-                                    selectedGenres + genre
-                                } else {
-                                    selectedGenres - genre
-                                }
+                                viewModel.onGenreSelected(genre, isChecked)
                             }
                         )
                         Text(genre)
@@ -132,7 +113,7 @@ fun FilterScreen(
             )
             Slider(
                 value = minRating.toFloat(),
-                onValueChange = { minRating = it.toDouble() },
+                onValueChange = { viewModel.onMinRatingChange(it.toDouble()) },
                 valueRange = 0f..10f,
                 steps = 9,
                 modifier = Modifier.padding(horizontal = 16.dp)

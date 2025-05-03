@@ -22,12 +22,12 @@
         android:theme="@style/Theme.Android_Practice"
         tools:targetApi="31"
         android:usesCleartextTraffic="true">
-        <receiver android:name=".ClassStartNotificationReceiver"
+        <receiver
+            android:name=".notifications.AppNotificationReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="com.example.android_practice.CLASS_START_ALARM" />
+                <action android:name="com.example.profile_feature.OPEN_ACTIVITY_ACTION" />
             </intent-filter>
         </receiver>
         <activity

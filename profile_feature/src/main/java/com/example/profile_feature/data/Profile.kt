@@ -1,4 +1,4 @@
-package com.example.android_practice.data
+package com.example.profile_feature.data
 
 data class Profile(
     val fullName: String = "",
