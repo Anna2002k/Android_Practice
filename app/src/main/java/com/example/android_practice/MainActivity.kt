@@ -1,47 +1,59 @@
 package com.example.android_practice
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.android_practice.ui.theme.Android_PracticeTheme
+import androidx.compose.runtime.*
+import androidx.navigation.compose.rememberNavController
+import com.example.android_practice.components.AppContent
+import com.example.android_practice.di.appModule
+import com.example.android_practice.ui.theme.androidPracticeTheme
+import com.example.profile_feature.di.profileModule
+import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.compose.KoinAndroidContext
+import org.koin.core.context.GlobalContext.startKoin
+import java.io.File
+import java.io.FileOutputStream
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        startKoin {
+            androidContext(this@MainActivity)
+            modules(appModule, profileModule)
+        }
+
         setContent {
-            Android_PracticeTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+            AppKoinWrapper()
+        }
+    }
+}
+@Composable
+fun AppKoinWrapper() {
+    KoinAndroidContext {
+        androidPracticeTheme {
+            val navController = rememberNavController()
+
+            AppContent(
+                navController = navController
+            )
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+private fun saveBitmapToCache(bitmap: Bitmap, context: Context): String {
+    val file = File(context.cacheDir, "avatar_${System.currentTimeMillis()}.jpg")
+    FileOutputStream(file).use { out ->
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+    }
+    return Uri.fromFile(file).toString()
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Android_PracticeTheme {
-        Greeting("Android")
-    }
-}
+

@@ -1,0 +1,153 @@
+package com.example.android_practice.content
+
+
+import FiltersDataStore
+import android.widget.ImageView
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.example.android_practice.entity.MovieEntity
+import androidx.compose.ui.viewinterop.AndroidView
+import com.example.android_practice.components.GlideImage
+import com.example.android_practice.data.remote.RetrofitInstance
+import com.example.android_practice.data.repository.MovieRepository
+import com.example.android_practice.ui.theme.androidPracticeTheme
+import com.example.android_practice.viewmodel.MovieState
+import com.example.android_practice.viewmodel.MovieViewModel
+import com.example.android_practice.viewmodel.ViewModelFactory
+import androidx.compose.material.icons.filled.FilterList
+import com.example.android_practice.cache.FilterStateCache
+import com.example.android_practice.di.MovieUiModel
+import com.example.android_practice.di.toUiModel
+import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainScreen(
+    navController: NavController,
+    viewModel: MovieViewModel = koinViewModel()
+) {
+
+    val movieState by viewModel.movieState.collectAsStateWithLifecycle()
+    val hasActiveFilters by viewModel.hasActiveFilters.collectAsStateWithLifecycle()
+
+    androidPracticeTheme {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            topBar = {
+                TopAppBar(
+                    title = { Text(text = "Список фильмов") },
+                    actions = {
+                        IconButton(onClick = { navController.navigate("filters") }) {
+                            BadgedBox(
+                                badge = {
+                                    if (hasActiveFilters){
+                                        Badge()
+                                    }
+                                }
+                            ) {
+                                Icon(Icons.Default.FilterList, contentDescription = "Фильтры")
+                            }
+                        }
+                    }
+                )
+            }
+        ) { padding ->
+            when (movieState) {
+                is MovieState.Loading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                is MovieState.Success -> {
+                    val movies = (movieState as MovieState.Success).movies
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(padding)
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(movies) { movie ->
+                            val movieUiModel = movie.toUiModel()
+                            MovieItem(movie = movieUiModel,
+                                onClick = {
+                                    navController.navigate("details/${movieUiModel.id}")
+                                })
+                        }
+                    }
+                }
+                is MovieState.Error -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = (movieState as MovieState.Error).message,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+                else -> {
+
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MovieItem(movie: MovieUiModel, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable { onClick() },
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            GlideImage(url = movie.posterUrl)
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 16.dp)
+            ) {
+                Text(text = movie.title, style = MaterialTheme.typography.titleLarge)
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = "Год: ${movie.year}", style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = "Рейтинг: ${movie.rating}", style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = "Жанры: ${movie.genres}", style = MaterialTheme.typography.bodySmall)
+            }
+        }
+    }
+}
+
+
+
